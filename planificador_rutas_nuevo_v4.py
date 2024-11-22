@@ -9,6 +9,7 @@ import numpy as np
 from io import BytesIO
 import re
 import io
+import concurrent.futures
 
 # Título de la aplicación
 st.title('Planificador de rutas 3.0')
@@ -83,6 +84,12 @@ def obtener_coordenadas(direccion):
         print(f"Error obteniendo coordenadas para {direccion}: {e}")
         return (None, None)
 
+# Función para obtener coordenadas en paralelo
+def obtener_coordenadas_parallel(direcciones):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        resultados = list(executor.map(obtener_coordenadas, direcciones))
+    return resultados
+
 # Cálculo de la distancia con validación de None
 def haversine(lat1, lon1, lat2, lon2):
     if None in [lat1, lon1, lat2, lon2]:
@@ -132,8 +139,9 @@ if uploaded_file is not None:
     df_4['Orden'] = df_4['DIRECCION_COMPLETA'].apply(lambda x: 0 if x == direccion_seleccionada else 1)
     df_4 = df_4.sort_values(by='Orden').drop(columns='Orden').reset_index(drop=True)
 
-    # Aplicar la función para obtener latitud y longitud con cache
-    df_4['Latitud'], df_4['Longitud'] = zip(*df_4['DIRECCION_COMPLETA'].apply(obtener_coordenadas))
+    # Aplicar la función para obtener latitud y longitud en paralelo
+    coordenadas = obtener_coordenadas_parallel(df_4['DIRECCION_COMPLETA'])
+    df_4['Latitud'], df_4['Longitud'] = zip(*coordenadas)
 
     # Función y ordenamiento
     def ordenar_por_proximidad(df_ordenado):
@@ -210,8 +218,6 @@ if uploaded_file is not None:
         ).add_to(mapa)
 
     coordenadas = list(zip(df_5['Latitud'], df_5['Longitud']))
-
-    icon = folium.DivIcon(html=f"""<div style="font-family: sans-serif; color: red">{i+1}</div>""")
 
     folium.PolyLine(locations=coordenadas, color='blue', weight=2.5, opacity=1).add_to(mapa)
 
