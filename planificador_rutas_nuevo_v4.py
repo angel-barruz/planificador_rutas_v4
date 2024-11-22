@@ -73,7 +73,6 @@ def sustituir_ñ(texto):
     return texto
 
 # Función para obtener coordenadas
-@st.cache_data
 def obtener_coordenadas(direccion):
     try:
         location = geolocator(direccion, country_codes='es', timeout=20)
@@ -123,6 +122,10 @@ if uploaded_file is not None:
 
     # Aplicar la función de limpiar_direccion a la columna DIRECCION_COMPLETA
     df_4['DIRECCION_COMPLETA'] = df_4['DIRECCION_COMPLETA'].apply(sustituir_ñ)
+
+    # Inicializar las columnas Latitud y Longitud
+    df_4['Latitud'] = np.nan
+    df_4['Longitud'] = np.nan
 
     # Campo de entrada de texto en lugar de selectbox para que el usuario introduzca la dirección manualmente
     direccion_seleccionada = st.text_input("Introduce la dirección de punto de partida: Calle, Número, Ciudad")
