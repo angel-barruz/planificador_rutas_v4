@@ -64,15 +64,16 @@ def limpiar_direccion(direccion):
 def sustituir_ñ(texto):
     texto = str(texto) if texto is not None else ''
     texto = re.sub(r'ñ', 'n', texto)
-    texto = re.sub(r'Ñ', 'N', texto)
-    texto = re.sub(r'SSR', 'SAN SEBASTIÁN DE LOS REYES, MADRID', texto)
-    texto = re.sub(r'AVDA', 'AVENIDA', texto)
-    texto = re.sub(r'CTRA\.\s*', 'CARRETERA ', texto)
-    texto = re.sub(r',\s*', ', ', texto)
-    texto = re.sub(r'CASTILLA LA MANCHA', 'DE CASTILLA-LA MANCHA', texto)
+    texto = re.sub(r'Ñ', 'N')
+    texto = re.sub(r'SSR', 'SAN SEBASTIÁN DE LOS REYES, MADRID')
+    texto = re.sub(r'AVDA', 'AVENIDA')
+    texto = re.sub(r'CTRA\.\s*', 'CARRETERA ')
+    texto = re.sub(r',\s*', ', ')
+    texto = re.sub(r'CASTILLA LA MANCHA', 'DE CASTILLA-LA MANCHA')
     return texto
 
 # Función para obtener coordenadas
+@st.cache_data
 def obtener_coordenadas(direccion):
     try:
         location = geolocator(direccion, country_codes='es', timeout=20)
@@ -139,9 +140,11 @@ if uploaded_file is not None:
     df_4['Orden'] = df_4['DIRECCION_COMPLETA'].apply(lambda x: 0 if x == direccion_seleccionada else 1)
     df_4 = df_4.sort_values(by='Orden').drop(columns='Orden').reset_index(drop=True)
 
-    # Aplicar la función para obtener latitud y longitud en paralelo
-    coordenadas = obtener_coordenadas_parallel(df_4['DIRECCION_COMPLETA'])
-    df_4['Latitud'], df_4['Longitud'] = zip(*coordenadas)
+    # Aplicar la función para obtener latitud y longitud en paralelo solo para nuevas direcciones
+    nuevas_direcciones = df_4[df_4['Latitud'].isna() | df_4['Longitud'].isna()]['DIRECCION_COMPLETA']
+    if not nuevas_direcciones.empty:
+        nuevas_coordenadas = obtener_coordenadas_parallel(nuevas_direcciones)
+        df_4.loc[nuevas_direcciones.index, ['Latitud', 'Longitud']] = nuevas_coordenadas
 
     # Función y ordenamiento
     def ordenar_por_proximidad(df_ordenado):
