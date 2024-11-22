@@ -64,12 +64,12 @@ def limpiar_direccion(direccion):
 def sustituir_ñ(texto):
     texto = str(texto) if texto is not None else ''
     texto = re.sub(r'ñ', 'n', texto)
-    texto = re.sub(r'Ñ', 'N')
-    texto = re.sub(r'SSR', 'SAN SEBASTIÁN DE LOS REYES, MADRID')
-    texto = re.sub(r'AVDA', 'AVENIDA')
-    texto = re.sub(r'CTRA\.\s*', 'CARRETERA ')
-    texto = re.sub(r',\s*', ', ')
-    texto = re.sub(r'CASTILLA LA MANCHA', 'DE CASTILLA-LA MANCHA')
+    texto = re.sub(r'Ñ', 'N', texto)
+    texto = re.sub(r'SSR', 'SAN SEBASTIÁN DE LOS REYES, MADRID', texto)
+    texto = re.sub(r'AVDA', 'AVENIDA', texto)
+    texto = re.sub(r'CTRA\.\s*', 'CARRETERA ', texto)
+    texto = re.sub(r',\s*', ', ', texto)
+    texto = re.sub(r'CASTILLA LA MANCHA', 'DE CASTILLA-LA MANCHA', texto)
     return texto
 
 # Función para obtener coordenadas
@@ -117,6 +117,9 @@ if uploaded_file is not None:
     df_4 = pd.concat([df_1, df_3], axis=1)
     df_4['AVISO'] = 'Sin Aviso'
     df_4 = df_4.drop('DIRECCION COMPLETA', axis=1)
+
+    # Asegurarse de que todos los valores en la columna DIRECCION_COMPLETA sean cadenas
+    df_4['DIRECCION_COMPLETA'] = df_4['DIRECCION_COMPLETA'].astype(str)
 
     # Aplicar la función de limpiar_direccion a la columna DIRECCION_COMPLETA
     df_4['DIRECCION_COMPLETA'] = df_4['DIRECCION_COMPLETA'].apply(sustituir_ñ)
