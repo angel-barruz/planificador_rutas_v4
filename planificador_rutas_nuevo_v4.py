@@ -73,6 +73,7 @@ def sustituir_ñ(texto):
     return texto
 
 # Función para obtener coordenadas
+@st.cache_data
 def obtener_coordenadas(direccion):
     try:
         location = geolocator(direccion, country_codes='es', timeout=20)
@@ -145,6 +146,17 @@ if uploaded_file is not None:
 
     df_4['Orden'] = df_4['DIRECCION_COMPLETA'].apply(lambda x: 0 if x == direccion_seleccionada else 1)
     df_4 = df_4.sort_values(by='Orden').drop(columns='Orden').reset_index(drop=True)
+
+    # Diccionario para almacenar coordenadas ya obtenidas
+    coordenadas_cache = {}
+
+    # Función para obtener coordenadas con caché
+    def obtener_coordenadas_con_cache(direccion):
+        if direccion in coordenadas_cache:
+            return coordenadas_cache[direccion]
+        coordenadas = obtener_coordenadas(direccion)
+        coordenadas_cache[direccion] = coordenadas
+        return coordenadas
 
     # Aplicar la función para obtener latitud y longitud en paralelo solo para nuevas direcciones
     nuevas_direcciones = df_4[df_4['Latitud'].isna() | df_4['Longitud'].isna()]['DIRECCION_COMPLETA']
