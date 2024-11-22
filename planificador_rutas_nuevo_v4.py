@@ -34,7 +34,6 @@ if uploaded_file is not None:
     csv_buffer.seek(0)  # Reiniciar el buffer
 
 # Inicializar el geocodificador Nominatim con RateLimiter para manejar mejor las solicitudes
-@st.cache_data
 def iniciar_geolocator():
     geolocator = Nominatim(user_agent="tu_aplicacion_de_geocodificacion")
     geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1, max_retries=3)
