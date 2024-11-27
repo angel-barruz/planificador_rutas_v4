@@ -13,6 +13,11 @@ import concurrent.futures
 
 # Título de la aplicación
 st.title('Planificador de rutas 3.0')
+st.subheader('Planifica tus rutas de manera eficiente y rápida')
+st.write('1. Carga un archivo Excel con las direcciones de la ruta a planificar. El archivo debe contener las columnas: DIRECCION COMPLETA, NUMERO y CIUDAD.')
+st.write('2. Introduce la dirección de punto de partida en el campo de texto.')
+st.write('3. Descarga el archivo Excel procesado con las rutas optimizadas.')
+st.write('4. Visualiza el mapa interactivo con las rutas planificadas.')
 
 # Cargar el archivo Excel
 uploaded_file = st.file_uploader("Por favor, carga un archivo Excel con las direcciones de la ruta a planificar", type=["xlsx", "xls"])
